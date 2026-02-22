@@ -1,17 +1,24 @@
-from django.test import TestCase
-
-def test_user_creation(user):
-    assert user.email == "test@example.com"
-
 import pytest
-from django.urls import reverse
+from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 
-@pytest.mark.django_db
-def test_user_registration():
-    client = APIClient()
+User = get_user_model()
 
-    response = client.post(
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+@pytest.fixture
+def user():
+    return User.objects.create_user(
+        username="tester",
+        email="tester@example.com",
+        password="TestPass123"
+    )
+
+@pytest.fixture
+def registered_user(api_client):
+    response = api_client.post(
         "/api/users/register/",
         {
             "email": "farmer@example.com",
@@ -21,5 +28,52 @@ def test_user_registration():
         },
         format="json"
     )
+    return response
 
-    assert response.status_code == 201
+@pytest.mark.django_db
+def test_user_creation(user):
+    assert user.email == "tester@example.com"
+
+@pytest.mark.django_db
+def test_registration_endpoint(registered_user):
+    assert registered_user.status_code == 201
+    assert registered_user.data["message"] == "Farm owner registered successfully"
+
+@pytest.mark.django_db
+def test_jwt_login_and_profile(user, api_client):
+    # login
+    login_response = api_client.post(
+        "/api/token/",
+        {"email": "tester@example.com", "password": "TestPass123"},
+        format="json"
+    )
+    assert login_response.status_code == 200
+    assert "access" in login_response.data
+    assert "refresh" in login_response.data
+
+    access_token = login_response.data["access"]
+
+    # access profile
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
+    profile_response = api_client.get("/api/users/me/")
+    assert profile_response.status_code == 200
+    assert profile_response.data["email"] == "tester@example.com"
+
+@pytest.mark.django_db
+def test_token_refresh(user, api_client):
+
+    login_response = api_client.post(
+        "/api/token/",
+        {"email": "tester@example.com", "password": "TestPass123"},
+        format="json"
+    )
+    refresh_token = login_response.data["refresh"]
+
+    # refresh access token
+    refresh_response = api_client.post(
+        "/api/token/refresh/",
+        {"refresh": refresh_token},
+        format="json"
+    )
+    assert refresh_response.status_code == 200
+    assert "access" in refresh_response.data
