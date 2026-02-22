@@ -30,7 +30,7 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
     # Apps' URLs
-    #path("api/users/", include("apps.users.urls")),
+    path("api/users/", include("apps.users.urls")),
     #path("api/farms/", include("apps.farms.urls")),
     #path("api/cattle/", include("apps.cattle.urls")),
     #path("api/milking/", include("apps.milking.urls")),
