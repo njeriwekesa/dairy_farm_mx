@@ -57,7 +57,22 @@ def test_jwt_login_and_profile(user, api_client):
     api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
     profile_response = api_client.get("/api/users/me/")
     assert profile_response.status_code == 200
-    assert profile_response.data["email"] == "tester@example.com"
+
+    data = profile_response.data
+    assert data["id"] == user.id
+    assert data["email"] == user.email
+    assert data["username"] == user.username
+    assert data["role"] == user.role
+
+    # farms list
+    assert isinstance(data["farms"], list)
+    # optional: if user has one farm, check its structure
+    if data["farms"]:
+        farm = data["farms"][0]
+        assert "id" in farm
+        assert "name" in farm
+        assert "location" in farm
+
 
 @pytest.mark.django_db
 def test_token_refresh(user, api_client):
