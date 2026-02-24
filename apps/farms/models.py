@@ -11,6 +11,9 @@ class Farm(models.Model):
     name = models.CharField(max_length=255)
     location = models.CharField(max_length=255, blank=True)
 
+    description = models.TextField(blank=True)
+    established_date = models.DateField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
