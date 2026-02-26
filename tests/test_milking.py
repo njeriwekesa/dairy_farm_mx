@@ -135,10 +135,15 @@ def test_update_milk_record(api_client, user, milk_record):
 
 
 @pytest.mark.django_db
-def test_cannot_change_cattle_on_update(api_client, user, other_user, milk_record):
-    # create another cattle
-    other_farm = Farm.objects.create(name="Other Farm", location="Kisumu", owner=user)
-    other_cattle = Cattle.objects.create(farm=other_farm, tag_number="COW123", breed="Friesian", gender="female", date_of_birth="2022-01-01")
+def test_cannot_change_cattle_on_update(api_client, user, milk_record):
+    # create another cattle for same user
+    other_cattle = Cattle.objects.create(
+        farm=milk_record.cattle.farm,
+        tag_number="COW123",
+        breed="Jersey",
+        gender="female",
+        date_of_birth="2022-01-01"
+    )
 
     api_client.force_authenticate(user=user)
     response = api_client.put(
@@ -152,7 +157,7 @@ def test_cannot_change_cattle_on_update(api_client, user, other_user, milk_recor
     )
 
     assert response.status_code == 200
-    # cattle should not have changed
+    # cattle should remain unchanged
     assert response.data["cattle"] == milk_record.cattle.id
 
 
@@ -193,3 +198,28 @@ def test_summary_endpoint(api_client, user, cattle):
     assert response.status_code == 200
     assert response.data["total_liters"] == 30.0
     assert response.data["average_liters_per_record"] == 15.0
+
+
+# ----------------- Filtering -----------------
+@pytest.mark.django_db
+def test_filter_by_cattle_tag_and_date(api_client, user, farm):
+    # create 2 cattle
+    cow1 = Cattle.objects.create(farm=farm, tag_number="COW001", breed="Friesian", gender="female", date_of_birth="2022-01-01")
+    cow2 = Cattle.objects.create(farm=farm, tag_number="COW002", breed="Jersey", gender="female", date_of_birth="2022-01-01")
+
+    # milk records
+    MilkProduction.objects.create(cattle=cow1, date_time="2026-02-26T08:00:00Z", liters="10.0")
+    MilkProduction.objects.create(cattle=cow2, date_time="2026-02-26T08:00:00Z", liters="20.0")
+
+    api_client.force_authenticate(user=user)
+
+    # filter by tag
+    response = api_client.get("/api/milk/?cattle__tag_number=COW001")
+    assert response.status_code == 200
+    assert len(response.data) == 1
+    assert response.data[0]["cattle"] == cow1.id
+
+    # filter by start and end dates
+    response = api_client.get("/api/milk/?start_date=2026-02-26T07:00:00Z&end_date=2026-02-26T09:00:00Z")
+    assert response.status_code == 200
+    assert len(response.data) == 2
