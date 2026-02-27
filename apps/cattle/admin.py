@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Cattle
 
-# Register your models here.
+@admin.register(Cattle)
+class CattleAdmin(admin.ModelAdmin):
+    list_display = ("tag_number", "farm")
+    search_fields = ("tag_number",)

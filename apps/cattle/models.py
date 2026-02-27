@@ -27,6 +27,8 @@ class Cattle(models.Model):
     class Meta:
         unique_together = ("farm", "tag_number")
         ordering = ["-created_at"]
+        verbose_name = "Cattle"
+        verbose_name_plural = "Cattle"
 
     def __str__(self):
         return f"{self.tag_number} - {self.breed}"

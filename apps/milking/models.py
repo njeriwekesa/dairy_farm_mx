@@ -20,6 +20,8 @@ class MilkProduction(models.Model):
             name="unique_milk_record_per_session"
         )
     ]
+        verbose_name = "Milk Records"
+        verbose_name_plural = "Milk Records"
 
     def __str__(self):
         return f"{self.cattle.tag_number} - {self.liters}L"
