@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Dashboard</h2>
+
+<!-- ==============================
+     CATTLE SECTION
+=============================== -->
+<section>
+    <h3>Cattle</h3>
+
+    <!-- Add / Edit Cattle Form -->
+    <div id="cattleFormSection">
+        <strong id="cattleFormTitle">Add Cattle</strong>
+        <input type="hidden" id="editCattleId">
+        <input type="text" id="cattleTag" placeholder="Tag Number">
+        <input type="text" id="cattleBreed" placeholder="Breed">
+        <select id="cattleGender">
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+        <button id="cattleSubmitBtn" onclick="submitCattle()">Add Cattle</button>
+        <button id="cattleCancelBtn" onclick="cancelCattleEdit()" style="display:none;">Cancel</button>
+    </div>
+
+    <!-- Search Cattle -->
+    <div style="margin-top: 8px;">
+        <label>Search by Tag:</label>
+        <input type="text" id="searchCattleTag" placeholder="e.g. COW001">
+        <button id="searchCattleBtn">Search</button>
+        <button id="clearCattleSearchBtn">Clear</button>
+    </div>
+
+    <!-- Cattle Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>Tag Number</th>
+                <th>Breed</th>
+                <th>Gender</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="cattleList"></tbody>
+    </table>
+</section>
+
+<hr>
+
+<!-- ==============================
+     MILK RECORDS SECTION
+=============================== -->
+<section>
+    <h3>Milk Records</h3>
+
+    <!-- Add / Edit Milk Form -->
+    <div id="milkFormSection">
+        <strong id="milkFormTitle">Add Record</strong>
+        <input type="hidden" id="editMilkId">
+        <select id="milkCattle">
+            <option value="">Select Cattle</option>
+        </select>
+        <input type="number" step="0.01" id="milkLiters" placeholder="Liters">
+        <input type="datetime-local" id="milkDate">
+        <button id="milkSubmitBtn" onclick="submitMilk()">Add Record</button>
+        <button id="milkCancelBtn" onclick="cancelMilkEdit()" style="display:none;">Cancel</button>
+    </div>
+
+    <!-- Search milk records by tag and optional date range -->
+    <div style="margin-top: 8px;">
+        <label>Search records:</label>
+        <input type="text" id="searchMilkTag" placeholder="Cattle Tag (e.g. COW001)">
+        <label>From:</label><input type="date" id="searchMilkStart">
+        <label>To:</label><input type="date" id="searchMilkEnd">
+        <button id="searchMilkBtn">Search</button>
+        <button id="clearMilkSearchBtn">Clear</button>
+    </div>
+
+    <!-- Milk Records Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>Cattle Tag</th>
+                <th>Liters</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="milkList"></tbody>
+    </table>
+
+    <p>Total shown: <strong><span id="totalMilk">0.00</span> L</strong></p>
+
+    <hr>
+
+    <!-- ==============================
+         MILK SUMMARY TABS
+    =============================== -->
+    <h4>Milk Production Summary</h4>
+    <div>
+        <button id="tabDaily" onclick="switchTab('daily')">Daily</button>
+        <button id="tabWeekly" onclick="switchTab('weekly')">Weekly</button>
+        <button id="tabMonthly" onclick="switchTab('monthly')">Monthly</button>
+    </div>
+
+    <div id="summaryTableWrapper" style="margin-top: 8px;">
+        <table>
+            <thead>
+                <tr>
+                    <th id="summaryPeriodHeader">Date</th>
+                    <th>Total Liters</th>
+                </tr>
+            </thead>
+            <tbody id="summaryList"></tbody>
+        </table>
+        <p id="summaryEmpty" style="display:none;">No records found for this period.</p>
+    </div>
+</section>
+
+{% endblock %}

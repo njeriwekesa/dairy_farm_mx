@@ -4,6 +4,8 @@ from .services import register_farm_owner
 
 from apps.farms.models import Farm
 from apps.farms.serializers import FarmSerializer
+from django.db import IntegrityError
+
 
 class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -11,8 +13,23 @@ class RegisterSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
     farm_name = serializers.CharField()
 
+    def validate_email(self, value):
+        if CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with that email already exists.")
+        return value
+
+    def validate_username(self, value):
+        if CustomUser.objects.filter(username=value).exists():
+            raise serializers.ValidationError("A user with that username already exists.")
+        return value
+
     def create(self, validated_data):
-        return register_farm_owner(validated_data)
+        try:
+            return register_farm_owner(validated_data)
+        except IntegrityError:
+            raise serializers.ValidationError(
+                "Registration failed due to a conflict. Please try a different username or email."
+            )
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

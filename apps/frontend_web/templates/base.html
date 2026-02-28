@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dairy Farm MX</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<!-- Navbar dynamically rendered by JS -->
+<nav id="navbar"></nav>
+
+<div id="content">
+    {% block content %}{% endblock %}
+</div>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
