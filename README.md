@@ -165,3 +165,17 @@ All endpoints are prefixed with `/api/`.
 - Each user's data is scoped to their farm — users cannot view or modify records belonging to other farms
 - Cattle tag numbers are unique per farm and cannot be changed after creation
 - Each milk record is unique per cattle per session datetime (enforced at the database level)
+
+---
+
+## App Documentation
+
+Each app has its own README with detailed models, endpoints, and usage examples.
+
+| App | Description |
+|---|---|
+| [`apps/users/`](apps/users/README.md) | User registration, JWT login/refresh, and profile retrieval. Covers the custom user model, role field, and authentication endpoints. |
+| [`apps/farms/`](apps/farms/README.md) | Farm creation and management. Each farm is automatically assigned to its owner on registration. Covers the Farm model, CRUD endpoints, and ownership rules. |
+| [`apps/cattle/`](apps/cattle/README.md) | Cattle CRUD with multi-tenant ownership enforcement. Covers filtering, farm immutability, and security rules for cross-user access prevention. |
+| [`apps/milking/`](apps/milking/README.md) | Milk production recording, filtering by cow tag and date range, and aggregated totals via the summary endpoint. |
+| [`apps/frontend_web/`](apps/frontend_web/README.md) | Django-served HTML/JS frontend. Covers the dashboard UI, static file setup, and how the frontend communicates with the REST API. |
