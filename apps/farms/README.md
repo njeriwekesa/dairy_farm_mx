@@ -1,71 +1,61 @@
-# Farm Management Feature
+# Farms App
 
-## Overview
-This module handles farm management for the Dairy Farm system. Each user can currently own **one farm**, and the farm is automatically assigned to the user upon creation.
-
-## Models
-
-### `Farm`
-| Field             | Type                 | Notes                                      |
-|------------------|--------------------|--------------------------------------------|
-| `name`           | CharField           | Name of the farm (required)               |
-| `location`       | CharField           | Farm location (required)                  |
-| `description`    | TextField           | Optional description of the farm          |
-| `established_date` | DateField         | Optional date farm was established       |
-| `owner`          | OneToOneField (User)| Automatically assigned upon creation      |
-| `created_at`     | DateTimeField       | Auto-generated timestamp                  |
-| `updated_at`     | DateTimeField       | Auto-generated timestamp                  |
+Manages farm records for authenticated users. Each user owns exactly one farm, which is created automatically during registration. All other apps (cattle, milking) scope their data to the farm via ownership checks.
 
 ---
 
-## API Endpoints
+## Model: `Farm`
 
-All endpoints require **authentication**.
+| Field              | Type          | Notes                                              |
+|--------------------|---------------|----------------------------------------------------|
+| `id`               | AutoField     | Primary key                                        |
+| `owner`            | ForeignKey    | Links to `CustomUser` — one farm per user enforced by serializer |
+| `name`             | CharField     | Required                                           |
+| `location`         | CharField     | Optional (`blank=True`)                            |
+| `description`      | TextField     | Optional (`blank=True`)                            |
+| `established_date` | DateField     | Optional (`null=True`, `blank=True`)               |
+| `created_at`       | DateTimeField | Auto-set on creation                               |
+| `updated_at`       | DateTimeField | Auto-updated on save                               |
 
-| Endpoint                | Method | Description                              |
-|-------------------------|--------|------------------------------------------|
-| `/api/farms/`           | GET    | Retrieve the logged-in user's farm       |
-| `/api/farms/`           | POST   | Create a new farm (assigned to user)     |
-| `/api/farms/{id}/`      | GET    | Retrieve farm details                     |
-| `/api/farms/{id}/`      | PUT    | Update farm details                       |
-| `/api/farms/{id}/`      | PATCH  | Partial update of farm details            |
-| `/api/farms/{id}/`      | DELETE | Delete the farm                           |
-
-> Note: Users can only access their own farm(s) at this stage.
-
----
-
-## Behavior & Rules
-- **One farm per user**: Attempting to create a second farm will return an error.  
-- **Ownership assignment**: The logged-in user is automatically assigned as the farm owner during creation.  
-- **Optional fields**: `description` and `established_date` can be left empty.  
+> `owner` is a `ForeignKey` in the model (not `OneToOneField`), but `FarmSerializer.validate()` enforces one farm per user at the serializer level, rejecting a second farm with a `400`.
 
 ---
 
-## Testing
+## Endpoints
 
-Automated tests available in tests/test_farms.py using pytest and APIClient.
+All endpoints require `Authorization: Bearer <access_token>`.
 
-Manual tests performed using curl commands. 
+| Method | Endpoint           | Description                        |
+|--------|--------------------|------------------------------------|
+| GET    | `/api/farms/`      | List the authenticated user's farm |
+| POST   | `/api/farms/`      | Create a new farm                  |
+| GET    | `/api/farms/{id}/` | Retrieve farm details              |
+| PUT    | `/api/farms/{id}/` | Full update of farm details        |
+| PATCH  | `/api/farms/{id}/` | Partial update of farm details     |
+| DELETE | `/api/farms/{id}/` | Delete the farm                    |
 
-Example Request:
+> `get_queryset()` filters by `owner=request.user` — requests for another user's farm return `404`.
 
-**Create a Farm**
-```bash
-curl -X POST http://127.0.0.1:8000/api/farms/ \
--H "Authorization: Bearer <ACCESS_TOKEN>" \
--H "Content-Type: application/json" \
--d '{
+---
+
+### Create a Farm
+`POST /api/farms/`
+
+> In normal usage this is called automatically during registration via `register_farm_owner()` in `apps/users/services.py`. Direct POST is available but rejected if the user already has a farm.
+
+**Request:**
+```json
+{
   "name": "Green Valley Dairy",
   "location": "Nakuru County",
   "description": "A small family-owned dairy farm",
   "established_date": "2020-05-15"
-}'
+}
 ```
-Response
 
-``` json
-{ 
+**Response `201`:**
+```json
+{
   "id": 1,
   "name": "Green Valley Dairy",
   "location": "Nakuru County",
@@ -75,12 +65,32 @@ Response
   "updated_at": "2026-02-24T08:57:41Z"
 }
 ```
-Future Steps:
 
-Consider allowing multiple farms per user in future versions.
+**Error `400` — second farm attempt:**
+```json
+{
+  "non_field_errors": ["You already have a registered farm."]
+}
+```
 
-Integrate staff and manager roles for farm access and permissions.
+---
 
+## Serializer Notes
 
+`FarmSerializer` excludes `owner` from its `fields` list — it is never exposed or accepted in API requests. Ownership is assigned by `FarmViewSet.perform_create()` via `serializer.save(owner=self.request.user)`.
 
+`FarmSerializer.create()` does not pass `owner` directly — do not call it outside of the viewset context.
 
+---
+
+## Notes
+
+- The one-farm restriction is intentional for the MVP; future versions may allow multiple farms per user
+- Deleting a farm will cascade-delete all cattle and milk records linked to it
+- Tests available in `tests/test_farms.py` using `pytest` and DRF's `APIClient`
+
+---
+
+## Development
+
+See the [project README](../../README.md) for local setup, environment variables, and how to run the development server.

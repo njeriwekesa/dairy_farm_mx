@@ -1,75 +1,119 @@
-# Milk Production Management
+# Milking App
 
-The Milk Production module allows farm owners to track, record, and analyze daily milk production per cow. This is part of the MVP for the dairy farm management system.
+Records and tracks milk production per cow. Supports full CRUD, datetime range filtering, and an aggregation endpoint for totals and averages. All records are scoped to the authenticated user's farm.
 
-## Features (MVP)
+---
 
-- Record milk production per cow (liters)
-- Track date and time of milking sessions
-- Link production records to specific cows
-- Calculate total and average production per cow
-- Aggregation endpoint for total and average liters
-- Filtering by cow tag number and date range
+## Model: `MilkProduction`
 
-## Models
+| Field        | Type          | Notes                                              |
+|--------------|---------------|----------------------------------------------------|
+| `id`         | AutoField     | Primary key                                        |
+| `cattle`     | ForeignKey    | Links to `Cattle`; immutable after creation        |
+| `date_time`  | DateTimeField | Date and time of the milking session (db indexed)  |
+| `liters`     | DecimalField  | Max 6 digits, 2 decimal places                     |
+| `created_at` | DateTimeField | Auto-set on creation                               |
 
-### MilkProduction
+> `UniqueConstraint(fields=["cattle", "date_time"])` — one record per cow per session datetime. Duplicate entries return `400`.
 
-| Field      | Type             | Description                         |
-|-----------|-----------------|-------------------------------------|
-| cattle    | ForeignKey(Cattle) | Cow associated with this record      |
-| date_time | DateTimeField     | Date and time of milking session     |
-| liters    | DecimalField      | Milk produced in liters               |
-| created_at| DateTimeField     | Record creation timestamp (auto)     |
+---
 
-## API Endpoints
+## Endpoints
 
-| Method | URL                      | Description                                    |
-|-------|--------------------------|------------------------------------------------|
-| GET    | `/api/milk/`             | List milk records for logged-in user’s farm   |
-| POST   | `/api/milk/`             | Create a new milk production record           |
-| GET    | `/api/milk/{id}/`        | Retrieve a single record                       |
-| PUT    | `/api/milk/{id}/`        | Update a record (cannot change cattle)        |
-| DELETE | `/api/milk/{id}/`        | Delete a record                                |
-| GET    | `/api/milk/summary/`     | Get total and average liters (respects filters) |
+All endpoints require `Authorization: Bearer <access_token>`.
+
+| Method | Endpoint             | Description                                         |
+|--------|----------------------|-----------------------------------------------------|
+| GET    | `/api/milk/`         | List milk records for the user's farm               |
+| POST   | `/api/milk/`         | Create a new milk production record                 |
+| GET    | `/api/milk/{id}/`    | Retrieve a single record                            |
+| PUT    | `/api/milk/{id}/`    | Full update (`cattle` field is read-only)           |
+| PATCH  | `/api/milk/{id}/`    | Partial update — typically `liters` or `date_time`  |
+| DELETE | `/api/milk/{id}/`    | Delete a record                                     |
+| GET    | `/api/milk/summary/` | Aggregated totals and averages (respects filters)   |
+
+---
+
+### Create a Record
+`POST /api/milk/`
+
+**Request:**
+```json
+{
+  "cattle": 1,
+  "date_time": "2026-02-27T07:00:00",
+  "liters": "20.00"
+}
+```
+
+**Response `201`:**
+```json
+{
+  "id": 1,
+  "cattle": 1,
+  "date_time": "2026-02-27T07:00:00Z",
+  "liters": "20.00",
+  "created_at": "2026-02-27T07:05:00Z"
+}
+```
+
+### Summary Endpoint
+`GET /api/milk/summary/`
+
+Returns flat totals only. Daily/weekly/monthly grouping is handled client-side in the frontend — the API does not group by period.
+
+**Response `200`:**
+```json
+{
+  "total_liters": 145.50,
+  "average_liters_per_record": 18.19
+}
+```
+
+---
 
 ## Filtering
 
-Supported query parameters for `/api/milk/`:
+`/api/milk/` and `/api/milk/summary/` support the following query parameters.
 
-- `cattle__tag_number` – Filter by cow tag
-- `start_date` – Filter records from this date (inclusive)
-- `end_date` – Filter records up to this date (inclusive)
+| Param                | Format                  | Description                              |
+|----------------------|-------------------------|------------------------------------------|
+| `cattle__tag_number` | string                  | Exact match on cattle tag number         |
+| `start_date`         | `YYYY-MM-DDTHH:MM:SS`   | Records on or after this datetime        |
+| `end_date`           | `YYYY-MM-DDTHH:MM:SS`   | Records on or before this datetime       |
+
+> `date_time` is a `DateTimeField` — filters require a full datetime string, not a date-only string. Date-only values (`2026-02-01`) will not match correctly.
 
 Example:
-
-```http
-GET /api/milk/?cattle__tag_number=COW001&start_date=2026-02-01&end_date=2026-02-28
 ```
-## Permissions
+GET /api/milk/?cattle__tag_number=COW001&start_date=2026-02-01T00:00:00&end_date=2026-02-28T23:59:59
+```
 
-Only authenticated users can access this module.
+---
 
-Users can only view, update, or delete milk records belonging to cows in their own farm(s).
+## Permissions & Ownership
 
-## Testing
+- `get_queryset()` filters by `cattle__farm__owner=request.user`
+- `validate_cattle()` in the serializer checks that the cattle belongs to the requesting user's farm — prevents logging milk for another user's cow even with a valid cattle ID
+- `cattle` is set to `read_only=True` on update via `get_fields()` — a record cannot be reassigned to a different cow after creation
 
-Automated tests cover:
+---
 
-Full CRUD operations
+## Serializer Notes
 
-Aggregation endpoint
+`MilkProductionSerializer` uses `fields = "__all__"`. Ownership validation in `validate_cattle()` accesses `self.context["request"].user` — this context is automatically injected by DRF when the serializer is used inside a viewset, but must be passed manually if the serializer is instantiated outside one.
 
-Multi-tenant access restrictions
-
-Filtering by cow tag and date
-
-Run tests:
-
-```pytest tests/test_milking.py```
+---
 
 ## Notes
 
-MVP does not yet include production trends visualization.
+- Deleting a cattle record will cascade-delete all its milk production records
+- The `date_time` field is indexed for query performance on date range filtering
+- The `summary/` endpoint aggregates across the filtered queryset — combine it with `start_date` / `end_date` for period-specific totals
+- Tests available in `tests/test_milking.py` using `pytest` and DRF's `APIClient`
 
-Future updates may add charts, weekly/monthly summaries, and export functionality.
+---
+
+## Development
+
+See the [project README](../../README.md) for local setup, environment variables, and how to run the development server.

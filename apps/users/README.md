@@ -1,21 +1,33 @@
-# Authentication & User Profile Feature
+# Users App
 
-## Overview
-This module provides:
-- **User registration** (farm owner signup)
-- **JWT authentication** (login, refresh token)
-- **Profile retrieval** (view own user details)
+Handles user registration, JWT authentication, and profile retrieval. Uses a custom user model (`CustomUser`) that authenticates via email instead of username.
+
+---
+
+## Model: `CustomUser`
+
+Extends Django's `AbstractUser`.
+
+| Field        | Type          | Notes                                                        |
+|--------------|---------------|--------------------------------------------------------------|
+| `email`      | EmailField    | Unique — used as the login identifier (`USERNAME_FIELD`)     |
+| `username`   | CharField     | Required, inherited from `AbstractUser`                      |
+| `role`       | CharField     | `owner` / `manager` / `staff` — defaults to `owner`         |
+| `created_at` | DateTimeField | Auto-set on creation                                         |
+| `updated_at` | DateTimeField | Auto-updated on save                                         |
+
+> The `role` field exists for future permission expansion and is not currently enforced in any view logic.
 
 ---
 
 ## Endpoints
 
-### 1. Register
-**URL:** /api/users/register/
+### Register
+`POST /api/users/register/`
 
-**Method:** POST 
+Creates a new user and automatically creates an associated farm in a single atomic transaction via `register_farm_owner()` in `services.py`.
 
-**Payload:**
+**Request:**
 ```json
 {
   "email": "farmer@example.com",
@@ -23,84 +35,126 @@ This module provides:
   "password": "StrongPass123",
   "farm_name": "My Dairy Farm"
 }
-Response (201 Created):
+```
 
+**Response `201`:**
+```json
 {
   "message": "Farm owner registered successfully"
 }
 ```
 
-2. Login (JWT)
+**Validation error `400` — duplicate credentials:**
+```json
+{
+  "email": ["A user with that email already exists."],
+  "username": ["A user with that username already exists."]
+}
+```
 
-URL: /api/token/
+---
 
-Method: POST
+### Login
+`POST /api/token/`
 
-Payload:
-
+**Request:**
 ```json
 {
   "email": "farmer@example.com",
   "password": "StrongPass123"
 }
-Response:
+```
 
+**Response `200`:**
+```json
 {
   "access": "<access_token>",
   "refresh": "<refresh_token>"
 }
 ```
 
-3. Refresh Token
+---
 
-URL: /api/token/refresh/
+### Refresh Token
+`POST /api/token/refresh/`
 
-Method: POST
-
-Payload:
-
+**Request:**
 ```json
 {
   "refresh": "<refresh_token>"
 }
-Response:
+```
 
+**Response `200`:**
+```json
 {
   "access": "<new_access_token>"
 }
 ```
-4. Get Own Profile
 
-URL: /api/users/me/
+---
 
-Method: GET
+### Get Own Profile
+`GET /api/users/me/`
 
-Headers:
+Requires `Authorization: Bearer <access_token>`.
 
+**Response `200`:**
 ```json
-Authorization: Bearer <access_token>
-Response:
-
 {
   "id": 1,
   "email": "farmer@example.com",
   "username": "farmer",
   "role": "owner",
-  "farm_name": "My Dairy Farm",
+  "farms": [
+    {
+      "id": 1,
+      "name": "My Dairy Farm",
+      "location": "",
+      "description": "",
+      "established_date": null,
+      "created_at": "2026-02-22T05:00:00Z",
+      "updated_at": "2026-02-22T05:00:00Z"
+    }
+  ],
   "created_at": "2026-02-22T05:00:00Z"
 }
 ```
-*Notes*
 
-The role field exists for future expansion (e.g., manager, staff).
+> `farms` is a nested array (not a flat `farm_name` string) — serialized by `FarmSerializer` via `SerializerMethodField`.
 
-Only registered users can obtain JWT tokens and access the profile endpoint.
+---
 
-All endpoints expect JSON requests and return JSON responses.
+## Service: `register_farm_owner`
 
-*Testing*
+Located in `services.py`. Wraps user and farm creation in `@transaction.atomic` — if either step fails, both are rolled back.
 
-Manual tests performed using curl commands.
+```python
+@transaction.atomic
+def register_farm_owner(validated_data):
+    user = CustomUser.objects.create_user(...)
+    farm = Farm.objects.create(name=validated_data["farm_name"], owner=user)
+    return user
+```
 
-Automated tests available in tests/test_users.py using pytest and APIClient.
+---
 
+## Serializer Notes
+
+`RegisterSerializer` validates uniqueness of `email` and `username` before hitting the database, returning a clean `400` on conflict. Calls `register_farm_owner` on save.
+
+`UserProfileSerializer` is read-only. The `farms` field uses `SerializerMethodField` and supports both `ForeignKey` (`farms`) and `OneToOne` (`farm`) relationships via a `hasattr` check.
+
+---
+
+## Notes
+
+- All registered users default to the `owner` role — no public signup for other roles
+- Token refresh is provided by `simplejwt` but the frontend does not implement silent refresh; expired tokens require a manual re-login
+- Tests available in `tests/test_users.py` using `pytest` and DRF's `APIClient`
+
+---
+
+## Development
+
+See the [project README](../../README.md) for local setup, environment variables, and how to run the development server.
