@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     'apps.milking.apps.MilkingConfig',
     'apps.sales.apps.SalesConfig',
     'apps.analytics.apps.AnalyticsConfig',
-    'apps.frontend_web.apps.FrontendWebConfig',
+    
 ]
 
 MIDDLEWARE = [
@@ -77,7 +77,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "frontend_web/templates")],
+        "DIRS": [],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -143,9 +143,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-STATICFILES_DIRS = [
-    BASE_DIR / "apps/frontend_web/static",
-]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
