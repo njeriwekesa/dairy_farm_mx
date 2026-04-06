@@ -18,8 +18,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import (
-  TokenObtainPairView, 
-  TokenRefreshView,
+    TokenObtainPairView,
+    TokenRefreshView,
 )
 
 urlpatterns = [
@@ -27,16 +27,16 @@ urlpatterns = [
     path("", include("apps.frontend_web.urls")),
 
     # JWT auth endpoints
-    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/v1/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/v1/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
     # Apps' URLs
-    path("api/users/", include("apps.users.urls")),
-    path("api/", include("apps.farms.urls")),
-    path("api/", include("apps.cattle.urls")),
-    path("api/", include("apps.milking.urls")),
-    #path("api/sales/", include("apps.sales.urls")),
-    #path("api/analytics/", include("apps.analytics.urls")),
+    path("api/v1/users/", include("apps.users.urls")),
+    path("api/v1/", include("apps.farms.urls")),
+    path("api/v1/", include("apps.cattle.urls")),
+    path("api/v1/", include("apps.milking.urls")),
+    # path("api/v1/sales/", include("apps.sales.urls")),
+    # path("api/v1/analytics/", include("apps.analytics.urls")),
 ]
 
 
