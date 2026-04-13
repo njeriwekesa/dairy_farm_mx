@@ -24,18 +24,18 @@ All endpoints require `Authorization: Bearer <access_token>`.
 
 | Method | Endpoint             | Description                                         |
 |--------|----------------------|-----------------------------------------------------|
-| GET    | `/api/milk/`         | List milk records for the user's farm               |
-| POST   | `/api/milk/`         | Create a new milk production record                 |
-| GET    | `/api/milk/{id}/`    | Retrieve a single record                            |
-| PUT    | `/api/milk/{id}/`    | Full update (`cattle` field is read-only)           |
-| PATCH  | `/api/milk/{id}/`    | Partial update — typically `liters` or `date_time`  |
-| DELETE | `/api/milk/{id}/`    | Delete a record                                     |
-| GET    | `/api/milk/summary/` | Aggregated totals and averages (respects filters)   |
+| GET    | `/api/v1/milk/`         | List milk records for the user's farm               |
+| POST   | `/api/v1/milk/`         | Create a new milk production record                 |
+| GET    | `/api/v1/milk/{id}/`    | Retrieve a single record                            |
+| PUT    | `/api/v1/milk/{id}/`    | Full update (`cattle` field is read-only)           |
+| PATCH  | `/api/v1/milk/{id}/`    | Partial update — typically `liters` or `date_time`  |
+| DELETE | `/api/v1/milk/{id}/`    | Delete a record                                     |
+| GET    | `/api/v1/milk/summary/` | Aggregated totals and averages (respects filters)   |
 
 ---
 
 ### Create a Record
-`POST /api/milk/`
+`POST /api/v1/milk/`
 
 **Request:**
 ```json
@@ -58,7 +58,7 @@ All endpoints require `Authorization: Bearer <access_token>`.
 ```
 
 ### Summary Endpoint
-`GET /api/milk/summary/`
+`GET /api/v1/milk/summary/`
 
 Returns flat totals only. Daily/weekly/monthly grouping is handled client-side in the frontend — the API does not group by period.
 
@@ -74,7 +74,7 @@ Returns flat totals only. Daily/weekly/monthly grouping is handled client-side i
 
 ## Filtering
 
-`/api/milk/` and `/api/milk/summary/` support the following query parameters.
+`/api/v1/milk/` and `/api/v1/milk/summary/` support the following query parameters.
 
 | Param                | Format                  | Description                              |
 |----------------------|-------------------------|------------------------------------------|
@@ -86,7 +86,7 @@ Returns flat totals only. Daily/weekly/monthly grouping is handled client-side i
 
 Example:
 ```
-GET /api/milk/?cattle__tag_number=COW001&start_date=2026-02-01T00:00:00&end_date=2026-02-28T23:59:59
+GET /api/v1/milk/?cattle__tag_number=COW001&start_date=2026-02-01T00:00:00&end_date=2026-02-28T23:59:59
 ```
 
 ---

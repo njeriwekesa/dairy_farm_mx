@@ -56,7 +56,7 @@ def test_owner_can_create_cattle(api_client, user, farm):
     api_client.force_authenticate(user=user)
 
     response = api_client.post(
-        "/api/cattle/",
+        "/api/v1/cattle/",
         {
             "farm": farm.id,
             "tag_number": "TAG002",
@@ -84,7 +84,7 @@ def test_cannot_create_cattle_for_other_users_farm(
     api_client.force_authenticate(user=user)
 
     response = api_client.post(
-        "/api/cattle/",
+        "/api/v1/cattle/",
         {
             "farm": other_farm.id,
             "tag_number": "TAG003",
@@ -127,7 +127,7 @@ def test_list_returns_only_owned_cattle(
     )
 
     api_client.force_authenticate(user=user)
-    response = api_client.get("/api/cattle/")
+    response = api_client.get("/api/v1/cattle/")
 
     assert response.status_code == 200
     assert len(response.data) == 1
@@ -153,7 +153,7 @@ def test_filtering_by_breed(api_client, user, farm):
 
     api_client.force_authenticate(user=user)
 
-    response = api_client.get("/api/cattle/?breed=Friesian")
+    response = api_client.get("/api/v1/cattle/?breed=Friesian")
 
     assert response.status_code == 200
     assert len(response.data) == 1
@@ -163,7 +163,7 @@ def test_filtering_by_breed(api_client, user, farm):
 def test_owner_can_retrieve_cattle(api_client, user, cattle):
     api_client.force_authenticate(user=user)
 
-    response = api_client.get(f"/api/cattle/{cattle.id}/")
+    response = api_client.get(f"/api/v1/cattle/{cattle.id}/")
 
     assert response.status_code == 200
     assert response.data["id"] == cattle.id
@@ -174,7 +174,7 @@ def test_other_user_cannot_retrieve_cattle(
 ):
     api_client.force_authenticate(user=another_user)
 
-    response = api_client.get(f"/api/cattle/{cattle.id}/")
+    response = api_client.get(f"/api/v1/cattle/{cattle.id}/")
 
     assert response.status_code == 404
 
@@ -183,7 +183,7 @@ def test_owner_can_update_cattle(api_client, user, cattle):
     api_client.force_authenticate(user=user)
 
     response = api_client.put(
-        f"/api/cattle/{cattle.id}/",
+        f"/api/v1/cattle/{cattle.id}/",
         {
             "farm": cattle.farm.id,
             "tag_number": "TAG001",
@@ -210,7 +210,7 @@ def test_cannot_change_farm_on_update(
     api_client.force_authenticate(user=user)
 
     response = api_client.put(
-        f"/api/cattle/{cattle.id}/",
+        f"/api/v1/cattle/{cattle.id}/",
         {
             "farm": new_farm.id,
             "tag_number": cattle.tag_number,
@@ -228,7 +228,7 @@ def test_cannot_change_farm_on_update(
 def test_owner_can_delete_cattle(api_client, user, cattle):
     api_client.force_authenticate(user=user)
 
-    response = api_client.delete(f"/api/cattle/{cattle.id}/")
+    response = api_client.delete(f"/api/v1/cattle/{cattle.id}/")
 
     assert response.status_code == 204
     assert Cattle.objects.count() == 0
@@ -239,7 +239,7 @@ def test_other_user_cannot_delete_cattle(
 ):
     api_client.force_authenticate(user=another_user)
 
-    response = api_client.delete(f"/api/cattle/{cattle.id}/")
+    response = api_client.delete(f"/api/v1/cattle/{cattle.id}/")
 
     assert response.status_code == 404                    
 

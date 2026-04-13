@@ -139,37 +139,37 @@ python manage.py runserver
 
 ## 📡 API Overview
 
-All endpoints are prefixed with `/api/`.
+All endpoints are prefixed with `/api/v1/`.
 
 ### Auth
 
 | Method | Endpoint               | Description                          |
 |--------|------------------------|--------------------------------------|
-| POST   | `/api/users/register/` | Register a new user + farm           |
-| POST   | `/api/token/`          | Obtain JWT access and refresh tokens |
-| POST   | `/api/token/refresh/`  | Refresh an access token              |
+| POST   | `/api/v1/users/register/` | Register a new user + farm           |
+| POST   | `/api/v1/token/`          | Obtain JWT access and refresh tokens |
+| POST   | `/api/v1/token/refresh/`  | Refresh an access token              |
 
 ### Farms
 
 | Method       | Endpoint           | Description                    |
 |--------------|--------------------|--------------------------------|
-| GET/POST     | `/api/farms/`      | List or create farms           |
-| GET/PATCH/DELETE | `/api/farms/{id}/` | Retrieve, edit, or delete  |
+| GET/POST     | `/api/v1/farms/`      | List or create farms           |
+| GET/PATCH/DELETE | `/api/v1/farms/{id}/` | Retrieve, edit, or delete  |
 
 ### Cattle
 
 | Method           | Endpoint            | Description                        |
 |------------------|---------------------|------------------------------------|
-| GET/POST         | `/api/cattle/`      | List or create cattle              |
-| GET/PATCH/DELETE | `/api/cattle/{id}/` | Retrieve, edit, or delete a record |
+| GET/POST         | `/api/v1/cattle/`      | List or create cattle              |
+| GET/PATCH/DELETE | `/api/v1/cattle/{id}/` | Retrieve, edit, or delete a record |
 
 ### Milk Production
 
 | Method           | Endpoint             | Description                              |
 |------------------|----------------------|------------------------------------------|
-| GET/POST         | `/api/milk/`         | List or create milk records              |
-| GET/PATCH/DELETE | `/api/milk/{id}/`    | Retrieve, edit, or delete a record       |
-| GET              | `/api/milk/summary/` | Aggregated totals (respects filters)     |
+| GET/POST         | `/api/v1/milk/`         | List or create milk records              |
+| GET/PATCH/DELETE | `/api/v1/milk/{id}/`    | Retrieve, edit, or delete a record       |
+| GET              | `/api/v1/milk/summary/` | Aggregated totals (respects filters)     |
 
 ### Milk filter params
 
@@ -187,18 +187,18 @@ This API uses JWT authentication via `djangorestframework-simplejwt`.
 
 ```bash
 # 1. Register
-POST /api/users/register/
+POST /api/v1/users/register/
 { "email": "farmer@example.com", "username": "farmer", "password": "yourpassword", "farm_name": "My Farm" }
 
 # 2. Login and get tokens
-POST /api/token/
+POST /api/v1/token/
 { "email": "farmer@example.com", "password": "yourpassword" }
 
 # 3. Use the access token on all subsequent requests
 Authorization: Bearer <access_token>
 
 # 4. Refresh when expired
-POST /api/token/refresh/
+POST /api/v1/token/refresh/
 { "refresh": "<refresh_token>" }
 ```
 

@@ -19,7 +19,7 @@ def user():
 @pytest.fixture
 def registered_user(api_client):
     response = api_client.post(
-        "/api/users/register/",
+        "/api/v1/users/register/",
         {
             "email": "farmer@example.com",
             "username": "farmer",
@@ -43,7 +43,7 @@ def test_registration_endpoint(registered_user):
 def test_jwt_login_and_profile(user, api_client):
     # login
     login_response = api_client.post(
-        "/api/token/",
+        "/api/v1/token/",
         {"email": "tester@example.com", "password": "TestPass123"},
         format="json"
     )
@@ -55,7 +55,7 @@ def test_jwt_login_and_profile(user, api_client):
 
     # access profile
     api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
-    profile_response = api_client.get("/api/users/me/")
+    profile_response = api_client.get("/api/v1/users/me/")
     assert profile_response.status_code == 200
 
     data = profile_response.data
@@ -78,7 +78,7 @@ def test_jwt_login_and_profile(user, api_client):
 def test_token_refresh(user, api_client):
 
     login_response = api_client.post(
-        "/api/token/",
+        "/api/v1/token/",
         {"email": "tester@example.com", "password": "TestPass123"},
         format="json"
     )
@@ -86,7 +86,7 @@ def test_token_refresh(user, api_client):
 
     # refresh access token
     refresh_response = api_client.post(
-        "/api/token/refresh/",
+        "/api/v1/token/refresh/",
         {"refresh": refresh_token},
         format="json"
     )

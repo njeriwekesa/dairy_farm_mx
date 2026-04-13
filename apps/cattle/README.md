@@ -28,19 +28,19 @@ All endpoints require `Authorization: Bearer <access_token>`.
 
 | Method | Endpoint            | Description                          |
 |--------|---------------------|--------------------------------------|
-| GET    | `/api/cattle/`      | List all cattle for the user's farm  |
-| POST   | `/api/cattle/`      | Add a new cattle record              |
-| GET    | `/api/cattle/{id}/` | Retrieve a single cattle record      |
-| PUT    | `/api/cattle/{id}/` | Full update of a cattle record       |
-| PATCH  | `/api/cattle/{id}/` | Partial update (e.g. breed, gender)  |
-| DELETE | `/api/cattle/{id}/` | Delete a cattle record               |
+| GET    | `/api/v1/cattle/`      | List all cattle for the user's farm  |
+| POST   | `/api/v1/cattle/`      | Add a new cattle record              |
+| GET    | `/api/v1/cattle/{id}/` | Retrieve a single cattle record      |
+| PUT    | `/api/v1/cattle/{id}/` | Full update of a cattle record       |
+| PATCH  | `/api/v1/cattle/{id}/` | Partial update (e.g. breed, gender)  |
+| DELETE | `/api/v1/cattle/{id}/` | Delete a cattle record               |
 
 > Requests for cattle belonging to another user's farm return `404`, not `403`, to avoid leaking record existence.
 
 ---
 
 ### Create Cattle
-`POST /api/cattle/`
+`POST /api/v1/cattle/`
 
 **Request:**
 ```json
@@ -68,7 +68,7 @@ All endpoints require `Authorization: Bearer <access_token>`.
 ```
 
 ### Update Cattle
-`PATCH /api/cattle/{id}/`
+`PATCH /api/v1/cattle/{id}/`
 
 `farm` is read-only on update and will be ignored if included. `tag_number` is technically patchable but should not be changed once milk records exist, as it is used as a display identifier across the system.
 
@@ -84,7 +84,7 @@ All endpoints require `Authorization: Bearer <access_token>`.
 
 ## Query Filtering
 
-`/api/cattle/` supports the following query parameters:
+`/api/v1/cattle/` supports the following query parameters:
 
 | Param       | Type    | Description                                                        |
 |-------------|---------|--------------------------------------------------------------------|
@@ -96,7 +96,7 @@ All endpoints require `Authorization: Bearer <access_token>`.
 
 Example:
 ```
-GET /api/cattle/?gender=female&is_active=true&ordering=-created_at
+GET /api/v1/cattle/?gender=female&is_active=true&ordering=-created_at
 ```
 
 ---

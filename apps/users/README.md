@@ -23,7 +23,7 @@ Extends Django's `AbstractUser`.
 ## Endpoints
 
 ### Register
-`POST /api/users/register/`
+`POST /api/v1/users/register/`
 
 Creates a new user and automatically creates an associated farm in a single atomic transaction via `register_farm_owner()` in `services.py`.
 
@@ -55,7 +55,7 @@ Creates a new user and automatically creates an associated farm in a single atom
 ---
 
 ### Login
-`POST /api/token/`
+`POST /api/v1/token/`
 
 **Request:**
 ```json
@@ -76,7 +76,7 @@ Creates a new user and automatically creates an associated farm in a single atom
 ---
 
 ### Refresh Token
-`POST /api/token/refresh/`
+`POST /api/v1/token/refresh/`
 
 **Request:**
 ```json
@@ -95,7 +95,7 @@ Creates a new user and automatically creates an associated farm in a single atom
 ---
 
 ### Get Own Profile
-`GET /api/users/me/`
+`GET /api/v1/users/me/`
 
 Requires `Authorization: Bearer <access_token>`.
 

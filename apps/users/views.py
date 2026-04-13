@@ -23,7 +23,7 @@ class RegisterView(generics.CreateAPIView):
 class MeView(generics.RetrieveAPIView):
     """
     Returns the currently authenticated user's profile.
-    Endpoint: GET /api/users/me/
+    Endpoint: GET /api/v1/users/me/
     """
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]

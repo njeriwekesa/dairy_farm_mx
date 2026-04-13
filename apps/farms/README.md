@@ -27,19 +27,19 @@ All endpoints require `Authorization: Bearer <access_token>`.
 
 | Method | Endpoint           | Description                        |
 |--------|--------------------|------------------------------------|
-| GET    | `/api/farms/`      | List the authenticated user's farm |
-| POST   | `/api/farms/`      | Create a new farm                  |
-| GET    | `/api/farms/{id}/` | Retrieve farm details              |
-| PUT    | `/api/farms/{id}/` | Full update of farm details        |
-| PATCH  | `/api/farms/{id}/` | Partial update of farm details     |
-| DELETE | `/api/farms/{id}/` | Delete the farm                    |
+| GET    | `/api/v1/farms/`      | List the authenticated user's farm |
+| POST   | `/api/v1/farms/`      | Create a new farm                  |
+| GET    | `/api/v1/farms/{id}/` | Retrieve farm details              |
+| PUT    | `/api/v1/farms/{id}/` | Full update of farm details        |
+| PATCH  | `/api/v1/farms/{id}/` | Partial update of farm details     |
+| DELETE | `/api/v1/farms/{id}/` | Delete the farm                    |
 
 > `get_queryset()` filters by `owner=request.user` — requests for another user's farm return `404`.
 
 ---
 
 ### Create a Farm
-`POST /api/farms/`
+`POST /api/v1/farms/`
 
 > In normal usage this is called automatically during registration via `register_farm_owner()` in `apps/users/services.py`. Direct POST is available but rejected if the user already has a farm.
 
