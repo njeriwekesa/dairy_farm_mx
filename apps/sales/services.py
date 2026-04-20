@@ -1,4 +1,5 @@
-from django.db.models import Count, Sum
+from decimal import Decimal
+from django.db.models import Count, Sum, DecimalField, Value
 from django.db.models.functions import Coalesce
 from rest_framework.exceptions import ValidationError
 
@@ -22,17 +23,19 @@ def create_sale(farm, buyer, liters_sold, price_per_litre, date, notes=None):
 
 
 def get_sales_summary(queryset):
+    zero = Value(Decimal("0"), output_field=DecimalField())
+
     totals = queryset.aggregate(
         total_sales=Count("id"),
-        total_revenue=Coalesce(Sum("total_amount"), 0),
-        total_liters_sold=Coalesce(Sum("liters_sold"), 0),
+        total_revenue=Coalesce(Sum("total_amount"), zero),
+        total_liters_sold=Coalesce(Sum("liters_sold"), zero),
     )
 
     by_buyer_qs = (
         queryset.values("buyer_id", "buyer__name", "buyer__buyer_type")
         .annotate(
-            total_liters=Coalesce(Sum("liters_sold"), 0),
-            total_revenue=Coalesce(Sum("total_amount"), 0),
+            total_liters=Coalesce(Sum("liters_sold"), zero),
+            total_revenue=Coalesce(Sum("total_amount"), zero),
             sales_count=Count("id"),
         )
         .order_by("buyer__name")
