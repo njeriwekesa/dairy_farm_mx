@@ -264,6 +264,7 @@ Each app has its own README with detailed models, endpoints, serializer notes, a
 | [`apps/farms/`](apps/farms/README.md) | Farm model, one-farm-per-user enforcement, CRUD endpoints, and ownership scoping. |
 | [`apps/cattle/`](apps/cattle/README.md) | Cattle CRUD, query filtering, farm immutability, and multi-tenant access rules. |
 | [`apps/milking/`](apps/milking/README.md) | Milk production records, datetime range filtering, and aggregated summary endpoint. |
+| [`apps/sales/`](apps/sales/README.md) | Buyer and Sale models, sales recording, per-buyer revenue summary, and date range filtering. |
 | [`apps/frontend_web/`](apps/frontend_web/README.md) | Django-served HTML/JS dashboard — auth flow, cattle and milk management UI, and summary tabs. |
 
 ---
