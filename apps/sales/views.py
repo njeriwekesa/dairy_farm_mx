@@ -25,6 +25,10 @@ class BuyerViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Buyer.objects.filter(farm__owner=self.request.user)
 
+    def perform_create(self, serializer):
+        farm = self.request.user.farms.first()
+        serializer.save(farm=farm)
+
     def destroy(self, request, *args, **kwargs):
         return Response(
             {"detail": "Buyers cannot be deleted. Set is_active=False to deactivate."},
@@ -42,8 +46,9 @@ class SaleViewSet(viewsets.ModelViewSet):
         return Sale.objects.filter(farm__owner=self.request.user)
 
     def perform_create(self, serializer):
+        farm = self.request.user.farms.first()
         sale = services.create_sale(
-            farm=serializer.validated_data["farm"],
+            farm=farm,
             buyer=serializer.validated_data["buyer"],
             liters_sold=serializer.validated_data["liters_sold"],
             price_per_litre=serializer.validated_data["price_per_litre"],
