@@ -1,4 +1,4 @@
-# 🐄 Dairy Farm MX
+# Dairy Farm MX
 
 A REST API backend for managing dairy farm operations — built with Django and Django REST Framework. Designed for Kenyan smallholder dairy farmers to track cattle, monitor milk production, and run their farm with data instead of guesswork.
 
@@ -8,13 +8,13 @@ A REST API backend for managing dairy farm operations — built with Django and 
 
 ## Features
 
-### ✅ Complete
+### Complete
 - **Cattle Management** — register and manage individual animals with tag number, breed, gender, and activity status
 - **Milk Production Tracking** — log milk yield per cow with datetime, query production trends over time
 - **Farmer Auth** — JWT-based authentication, farm auto-created on registration
 - **Django Admin Dashboard** — full admin interface for farm data oversight
 
-### 🔧 In Progress
+### In Progress
 - Production reports and analytics
 - Expense and inventory tracking
 - Scheduling and reminders
@@ -22,7 +22,7 @@ A REST API backend for managing dairy farm operations — built with Django and 
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 This project is a **modular monolith** — a single Django application divided into focused, loosely coupled apps, each owning its domain logic.
 
@@ -54,7 +54,7 @@ dairy_farm_mx/
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer      | Technology                                      |
 |------------|-------------------------------------------------|
@@ -68,7 +68,7 @@ dairy_farm_mx/
 
 ---
 
-## ⚙️ Running Locally
+## Running Locally
 
 ### Prerequisites
 - Python 3.12+
@@ -137,7 +137,7 @@ python manage.py runserver
 
 ---
 
-## 📡 API Overview
+## API Overview
 
 All endpoints are prefixed with `/api/v1/`.
 
@@ -181,7 +181,7 @@ All endpoints are prefixed with `/api/v1/`.
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
 This API uses JWT authentication via `djangorestframework-simplejwt`.
 
@@ -206,7 +206,7 @@ POST /api/v1/token/refresh/
 
 ---
 
-## 🗄️ Database Schema (Core Models)
+## Database Schema (Core Models)
 
 ```
 CustomUser
@@ -231,7 +231,7 @@ MilkProduction
 
 ---
 
-## 💡 Design Decisions
+## Design Decisions
 
 **Modular monolith** — apps are loosely coupled with clean domain boundaries, making future extraction into microservices tractable if the need arises.
 
@@ -243,7 +243,7 @@ MilkProduction
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
 - [ ] Expense and inventory tracking
 - [ ] Production analytics endpoints (yield trends, per-cow averages)
@@ -254,7 +254,7 @@ MilkProduction
 
 ---
 
-## 📚 App Documentation
+## App Documentation
 
 Each app has its own README with detailed models, endpoints, serializer notes, and ownership rules.
 
@@ -265,11 +265,11 @@ Each app has its own README with detailed models, endpoints, serializer notes, a
 | [`apps/cattle/`](apps/cattle/README.md) | Cattle CRUD, query filtering, farm immutability, and multi-tenant access rules. |
 | [`apps/milking/`](apps/milking/README.md) | Milk production records, datetime range filtering, and aggregated summary endpoint. |
 | [`apps/sales/`](apps/sales/README.md) | Buyer and Sale models, sales recording, per-buyer revenue summary, and date range filtering. |
-| [`apps/frontend_web/`](apps/frontend_web/README.md) | Django-served HTML/JS dashboard — auth flow, cattle and milk management UI, and summary tabs. |
+| [`apps/expenses/`](apps/expenses/README.md) | Supplier, inventory, and expense tracking with purchase/usage recording, low-stock alerts, and expense summary by category and supplier. |
 
 ---
 
-## 👩🏽‍💻 Author
+## Author
 
 **Njeri Wekesa** — Software Developer · Python/Django · Medic-Turned-Techie
 
